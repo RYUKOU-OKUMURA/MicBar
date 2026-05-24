@@ -28,8 +28,25 @@ targets:
         MARKETING_VERSION: 0.1.0
         CURRENT_PROJECT_VERSION: 1
         ENABLE_HARDENED_RUNTIME: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      configs:
+        Debug:
+          # Build directly into /Applications so Launchpad/Spotlight never see a second copy in DerivedData.
+          CONFIGURATION_BUILD_DIR: /Applications
     dependencies:
       - sdk: CoreAudio.framework
+    postBuildScripts:
+      - name: Register installed app only
+        basedOnDependencyAnalysis: false
+        script: |
+          LSREGISTER="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
+          APP="/Applications/${WRAPPER_NAME}"
+          if [ -d "$APP" ]; then
+            "$LSREGISTER" -f -R -trusted "$APP" >/dev/null 2>&1 || true
+          fi
+          # Remove legacy DerivedData copies that cause duplicate Launchpad icons.
+          find "${HOME}/Library/Developer/Xcode/DerivedData" -path "*/Build/Products/*/MicBar.app" -print0 2>/dev/null \
+            | xargs -0 rm -rf 2>/dev/null || true
 
   MicBarSpike:
     type: tool
