@@ -145,8 +145,8 @@ MicBar/
 ### 1.3 終了・常駐確認
 
 - [x] 「終了」でアプリが終了する
-- [ ] 再起動で Menu Bar Icon が復帰する
-- [ ] Dock / ⌘+Tab に出ない（Background App）
+- [x] 再起動で Menu Bar Icon が復帰する
+- [x] Dock / ⌘+Tab に出ない（Background App）
 
 ### 完了条件（フェーズ 1）
 
