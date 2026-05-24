@@ -1,0 +1,70 @@
+name: MicBar
+options:
+  bundleIdPrefix: com.boss
+  deploymentTarget:
+    macOS: "13.0"
+  createIntermediateGroups: true
+  groupSortPosition: top
+
+settings:
+  base:
+    ARCHS: arm64
+    EXCLUDED_ARCHS[sdk=macosx*]: x86_64 i386
+    MACOSX_DEPLOYMENT_TARGET: "13.0"
+    SWIFT_VERSION: "5.0"
+
+targets:
+  MicBar:
+    type: application
+    platform: macOS
+    sources:
+      - path: MicBar
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.boss.MicBar
+        INFOPLIST_KEY_LSUIElement: YES
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.utilities
+        GENERATE_INFOPLIST_FILE: YES
+        MARKETING_VERSION: 0.1.0
+        CURRENT_PROJECT_VERSION: 1
+        ENABLE_HARDENED_RUNTIME: YES
+    dependencies:
+      - sdk: CoreAudio.framework
+
+  MicBarSpike:
+    type: tool
+    platform: macOS
+    sources:
+      - path: MicBarSpike
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.boss.MicBarSpike
+        GENERATE_INFOPLIST_FILE: YES
+    dependencies:
+      - sdk: CoreAudio.framework
+
+  MicBarTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: MicBarTests
+    dependencies:
+      - target: MicBar
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.boss.MicBarTests
+
+schemes:
+  MicBar:
+    build:
+      targets:
+        MicBar: all
+        MicBarTests: [test]
+    test:
+      targets:
+        - MicBarTests
+  MicBarSpike:
+    build:
+      targets:
+        MicBarSpike: all
