@@ -91,6 +91,7 @@ xcodebuild -scheme MicBar -configuration Debug test
 | 2026-05-24 | 1–5 | MenuBarExtra、Core Audio 一覧・切替、Store、UT 9 件緑を一括実装。 |
 | 2026-05-24 | 1–5 | 完了。レビュー OK（Critical 0。Loading 文言のみ表示に修正済み）。 |
 | 2026-05-24 | 6 | 実装・スパイクで Speaker Audio Recorder 等を確認。USB/AirPods/AC-006 は BOSS 手動 QA 待ち。 |
+| 2026-05-24 | 6 | **完了**。BOSS 実機 QA OK — 一覧・切替・Dock 非表示を確認。v0.1 完了判定。 |
 
-**現在フェーズ**: Phase 6（手動 QA — BOSS 最終確認残）  
-**次のアクション**: BOSS 実機で §6.1 USB/AirPods・AC-006・Dock 非表示を確認 → v0.1 完了判定
+**現在フェーズ**: v0.1 完了  
+**次のアクション**: v0.2 候補（ログイン時起動、デバイス自動監視、Menu Bar 常時ラベル）の優先付け
