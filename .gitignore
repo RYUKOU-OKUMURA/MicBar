@@ -6,5 +6,10 @@ build/
 *.xcuserstate
 *.xcscmblueprint
 
+# Local build artifacts (keep /Applications/MicBar.app as the only install)
+MicBar.app/
+MicBar.swiftmodule/
+MicBarTests.swiftmodule/
+
 # macOS
 .DS_Store

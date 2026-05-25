@@ -241,5 +241,5 @@ UI / Core Audio を除くロジック層:
 
 | バージョン | 主な追加 |
 |-----------|---------|
-| v0.2 | ログイン時起動、デバイス自動監視、Menu Bar 常時ラベル設定、エラー UI 改善 |
+| v0.2 | ログイン時起動、デバイス自動監視、Menu Bar Label 設定 — 詳細は [requirements-v02.md](./requirements-v02.md) |
 | v1.0 | transport 付き Display Name、スリープ復帰、配布パッケージ、Intel / Universal Binary |

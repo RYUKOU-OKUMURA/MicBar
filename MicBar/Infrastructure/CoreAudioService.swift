@@ -3,6 +3,12 @@ import Foundation
 
 final class CoreAudioService: AudioDeviceProviding, @unchecked Sendable {
     private let systemObjectID = AudioObjectID(kAudioObjectSystemObject)
+    private let listenerQueue = DispatchQueue(label: "com.boss.MicBar.coreaudio.listeners")
+    private var isMonitoring = false
+    private var onChangeHandler: (@Sendable () -> Void)?
+
+    private var devicesListener: AudioObjectPropertyListenerBlock?
+    private var defaultInputListener: AudioObjectPropertyListenerBlock?
 
     func listInputDevices() throws -> [AudioInputDevice] {
         let deviceIDs = try fetchAllDeviceIDs()
@@ -55,6 +61,88 @@ final class CoreAudioService: AudioDeviceProviding, @unchecked Sendable {
         guard status == noErr else {
             throw AudioDeviceError.switchFailed
         }
+    }
+
+    func peekDeviceSnapshot() throws -> DeviceSnapshot {
+        DeviceSnapshot(devices: try listInputDevices())
+    }
+
+    func startMonitoring(onChange: @escaping @Sendable () -> Void) {
+        stopMonitoring()
+        onChangeHandler = onChange
+        isMonitoring = true
+
+        let handler: AudioObjectPropertyListenerBlock = { [weak self] _, _ in
+            self?.onChangeHandler?()
+        }
+
+        var devicesAddress = AudioObjectPropertyAddress(
+            mSelector: kAudioHardwarePropertyDevices,
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMain
+        )
+        var defaultAddress = AudioObjectPropertyAddress(
+            mSelector: kAudioHardwarePropertyDefaultInputDevice,
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMain
+        )
+
+        devicesListener = handler
+        defaultInputListener = handler
+
+        AudioObjectAddPropertyListenerBlock(
+            systemObjectID,
+            &devicesAddress,
+            listenerQueue,
+            handler
+        )
+        AudioObjectAddPropertyListenerBlock(
+            systemObjectID,
+            &defaultAddress,
+            listenerQueue,
+            handler
+        )
+    }
+
+    func stopMonitoring() {
+        guard isMonitoring else { return }
+
+        var devicesAddress = AudioObjectPropertyAddress(
+            mSelector: kAudioHardwarePropertyDevices,
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMain
+        )
+        var defaultAddress = AudioObjectPropertyAddress(
+            mSelector: kAudioHardwarePropertyDefaultInputDevice,
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMain
+        )
+
+        if let devicesListener {
+            AudioObjectRemovePropertyListenerBlock(
+                systemObjectID,
+                &devicesAddress,
+                listenerQueue,
+                devicesListener
+            )
+        }
+        if let defaultInputListener {
+            AudioObjectRemovePropertyListenerBlock(
+                systemObjectID,
+                &defaultAddress,
+                listenerQueue,
+                defaultInputListener
+            )
+        }
+
+        devicesListener = nil
+        defaultInputListener = nil
+        onChangeHandler = nil
+        isMonitoring = false
+    }
+
+    deinit {
+        stopMonitoring()
     }
 
     // MARK: - Private

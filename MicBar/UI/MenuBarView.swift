@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MenuBarView: View {
     @ObservedObject var store: AudioDeviceStore
+    @ObservedObject var settings: MicBarSettings
 
     var body: some View {
         Group {
@@ -17,7 +18,12 @@ struct MenuBarView: View {
             }
         }
         .onAppear {
-            Task { await store.refresh() }
+            settings.syncLoginItemFromSystem()
+            store.setMenuVisible(true)
+            Task { await store.refreshOnMenuAppear() }
+        }
+        .onDisappear {
+            store.setMenuVisible(false)
         }
     }
 
@@ -54,6 +60,7 @@ struct MenuBarView: View {
             }
 
             Divider()
+            settingsFooter
             footerActions
         }
     }
@@ -80,12 +87,34 @@ struct MenuBarView: View {
         }
     }
 
+    // MARK: - Settings footer (F-014)
+
+    private var settingsFooter: some View {
+        Group {
+            Toggle("ログイン時に起動", isOn: loginItemBinding)
+            Toggle("メニューバーにデバイス名を表示", isOn: $settings.showMenuBarLabel)
+        }
+    }
+
+    private var loginItemBinding: Binding<Bool> {
+        Binding(
+            get: { settings.loginItemEnabled },
+            set: { newValue in
+                do {
+                    try settings.setLoginItemEnabled(newValue)
+                } catch {
+                    settings.syncLoginItemFromSystem()
+                }
+            }
+        )
+    }
+
     // MARK: - Footer
 
     private var footerActions: some View {
         Group {
             Button("入力デバイスを再読み込み") {
-                Task { await store.refresh() }
+                Task { await store.refreshForeground() }
             }
             Button("終了") {
                 NSApplication.shared.terminate(nil)

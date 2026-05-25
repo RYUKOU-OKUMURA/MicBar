@@ -25,7 +25,7 @@ targets:
         INFOPLIST_KEY_LSUIElement: YES
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.utilities
         GENERATE_INFOPLIST_FILE: YES
-        MARKETING_VERSION: 0.1.0
+        MARKETING_VERSION: 0.2.0
         CURRENT_PROJECT_VERSION: 1
         ENABLE_HARDENED_RUNTIME: YES
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
@@ -35,6 +35,7 @@ targets:
           CONFIGURATION_BUILD_DIR: /Applications
     dependencies:
       - sdk: CoreAudio.framework
+      - sdk: ServiceManagement.framework
     postBuildScripts:
       - name: Register installed app only
         basedOnDependencyAnalysis: false
@@ -47,6 +48,11 @@ targets:
           # Remove legacy DerivedData copies that cause duplicate Launchpad icons.
           find "${HOME}/Library/Developer/Xcode/DerivedData" -path "*/Build/Products/*/MicBar.app" -print0 2>/dev/null \
             | xargs -0 rm -rf 2>/dev/null || true
+          # Remove repo-root copy from accidental builds (CONFIGURATION_BUILD_DIR override).
+          REPO_APP="${SRCROOT}/MicBar.app"
+          if [ -d "$REPO_APP" ]; then
+            rm -rf "$REPO_APP"
+          fi
 
   MicBarSpike:
     type: tool
